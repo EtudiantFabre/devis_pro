@@ -4,6 +4,10 @@ import '../database/database_helper.dart';
 import '../models/devis.dart';
 import '../theme/app_theme.dart';
 import 'quote_detail_screen.dart';
+import 'create_quote_screen.dart';
+import 'manage_clients_products_screen.dart';
+import 'package:provider/provider.dart';
+import '../services/settings_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -123,7 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: ElevatedButton.icon(
                                     onPressed: () {
                                       // Navigation vers création de devis
-                                      DefaultTabController.of(context)?.animateTo(1);
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const CreateQuoteScreen(),
+                                        ),
+                                      );
                                     },
                                     icon: const Icon(Icons.add),
                                     label: const Text('Nouveau Devis'),
@@ -134,7 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: OutlinedButton.icon(
                                     onPressed: () {
                                       // Navigation vers gestion clients/produits
-                                      DefaultTabController.of(context)?.animateTo(2);
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => const ManageClientsProductsScreen(),
+                                        ),
+                                      );
                                     },
                                     icon: const Icon(Icons.people),
                                     label: const Text('Clients'),
@@ -234,7 +246,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ElevatedButton.icon(
                                 onPressed: () {
                                   // Navigation vers création de devis
-                                  DefaultTabController.of(context)?.animateTo(1);
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const CreateQuoteScreen(),
+                                    ),
+                                  );
                                 },
                                 icon: const Icon(Icons.add),
                                 label: const Text('Créer un devis'),
@@ -284,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    '${NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(quote.total)}',
+                                    context.read<SettingsService>().formatAmount(quote.total),
                                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: AppTheme.primaryColor,

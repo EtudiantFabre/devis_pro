@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../services/settings_service.dart';
 import '../database/database_helper.dart';
 import '../models/devis.dart';
 import '../models/item_devis.dart';
@@ -82,17 +84,19 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
   Future<void> _generateAndSharePDF() async {
     try {
       final pdfService = PdfService();
-      final pdfFile = await pdfService.generateQuotePDF(widget.quote, _items);
-      
+      // Choisir le modèle
+      final style = await _chooseTemplateStyle();
+      if (style == null) return;
+      final pdfFile = await pdfService.generateQuotePDF(
+        widget.quote,
+        _items,
+        style: style,
+      );
       if (mounted) {
-        // Afficher un dialogue pour demander l'email
-        final email = await _showEmailDialog();
-        if (email != null && email.isNotEmpty) {
-          await pdfService.sharePDF(pdfFile, email);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('PDF généré et envoyé avec succès')),
-          );
-        }
+        await pdfService.sharePDF(pdfFile, '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PDF généré, choisissez une option de partage')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -101,6 +105,35 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
         );
       }
     }
+  }
+
+  Future<PdfTemplateStyle?> _chooseTemplateStyle() async {
+    return showModalBottomSheet<PdfTemplateStyle>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.description),
+              title: const Text('Classique'),
+              onTap: () => Navigator.pop(context, PdfTemplateStyle.classique),
+            ),
+            ListTile(
+              leading: const Icon(Icons.filter_none),
+              title: const Text('Minimal'),
+              onTap: () => Navigator.pop(context, PdfTemplateStyle.minimal),
+            ),
+            ListTile(
+              leading: const Icon(Icons.layers),
+              title: const Text('Moderne'),
+              onTap: () => Navigator.pop(context, PdfTemplateStyle.moderne),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<String?> _showEmailDialog() async {
@@ -189,7 +222,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                           _buildInfoRow('Téléphone', widget.quote.client?.telephone ?? 'N/A'),
                           _buildInfoRow('Date de création', DateFormat('dd/MM/yyyy').format(widget.quote.dateCreation)),
                           _buildInfoRow('Date d\'échéance', DateFormat('dd/MM/yyyy').format(widget.quote.dateEcheance)),
-                          _buildInfoRow('Total', NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(widget.quote.total)),
+                          _buildInfoRow('Total', context.read<SettingsService>().formatAmount(widget.quote.total)),
                           if (widget.quote.notes != null && widget.quote.notes!.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
@@ -268,7 +301,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                                       ),
                                     ),
                                     Text(
-                                      NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(item.total),
+                                      context.read<SettingsService>().formatAmount(item.total),
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: AppTheme.primaryColor,
@@ -294,7 +327,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                                     ),
                                     const SizedBox(width: 16),
                                     Text(
-                                      'Prix unitaire: ${NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(item.prixUnitaire)}',
+                                      'Prix unitaire: ${context.read<SettingsService>().formatAmount(item.prixUnitaire)}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (item.unite != null) ...[

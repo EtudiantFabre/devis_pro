@@ -9,8 +9,14 @@ import 'package:intl/intl.dart';
 import '../models/devis.dart';
 import '../models/item_devis.dart';
 
+enum PdfTemplateStyle { classique, minimal, moderne }
+
 class PdfService {
-  Future<File> generateQuotePDF(Devis devis, List<ItemDevis> items) async {
+  Future<File> generateQuotePDF(
+    Devis devis,
+    List<ItemDevis> items, {
+    PdfTemplateStyle style = PdfTemplateStyle.classique,
+  }) async {
     final pdf = pw.Document();
 
     // Créer le PDF
@@ -18,7 +24,14 @@ class PdfService {
       pw.Page(
         pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) {
-          return _buildQuoteContent(devis, items);
+          switch (style) {
+            case PdfTemplateStyle.classique:
+              return _buildQuoteContentClassique(devis, items);
+            case PdfTemplateStyle.minimal:
+              return _buildQuoteContentMinimal(devis, items);
+            case PdfTemplateStyle.moderne:
+              return _buildQuoteContentModerne(devis, items);
+          }
         },
       ),
     );
@@ -31,7 +44,8 @@ class PdfService {
     return file;
   }
 
-  pw.Widget _buildQuoteContent(Devis devis, List<ItemDevis> items) {
+  // ======= Templates =======
+  pw.Widget _buildQuoteContentClassique(Devis devis, List<ItemDevis> items) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -69,6 +83,74 @@ class PdfService {
         // Pied de page
         _buildFooter(),
       ],
+    );
+  }
+
+  pw.Widget _buildQuoteContentMinimal(Devis devis, List<ItemDevis> items) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text('Devis', style: pw.TextStyle(fontSize: 28, fontWeight: pw.FontWeight.bold)),
+            pw.Text(devis.numero, style: pw.TextStyle(fontSize: 12, color: PdfColors.grey600)),
+          ],
+        ),
+        pw.SizedBox(height: 12),
+        pw.Divider(color: PdfColors.grey400),
+        pw.SizedBox(height: 12),
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Expanded(child: _buildClientInfo(devis)),
+            pw.SizedBox(width: 12),
+            pw.Expanded(child: _buildQuoteInfo(devis)),
+          ],
+        ),
+        pw.SizedBox(height: 20),
+        _buildItemsTable(items),
+        pw.SizedBox(height: 20),
+        _buildTotal(devis),
+        if (devis.notes != null && devis.notes!.isNotEmpty) ...[
+          pw.SizedBox(height: 16),
+          _buildNotes(devis.notes!),
+        ],
+      ],
+    );
+  }
+
+  pw.Widget _buildQuoteContentModerne(Devis devis, List<ItemDevis> items) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(20),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: pw.BorderRadius.circular(12),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          _buildHeader(),
+          pw.SizedBox(height: 16),
+          pw.Row(
+            children: [
+              pw.Expanded(child: _buildClientInfo(devis)),
+              pw.SizedBox(width: 12),
+              pw.Expanded(child: _buildQuoteInfo(devis)),
+            ],
+          ),
+          pw.SizedBox(height: 16),
+          _buildItemsTable(items),
+          pw.SizedBox(height: 16),
+          _buildTotal(devis),
+          if (devis.notes != null && devis.notes!.isNotEmpty) ...[
+            pw.SizedBox(height: 16),
+            _buildNotes(devis.notes!),
+          ],
+          pw.SizedBox(height: 12),
+          _buildFooter(),
+        ],
+      ),
     );
   }
 

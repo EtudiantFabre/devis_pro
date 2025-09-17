@@ -1,7 +1,7 @@
 class Client {
   final int? id;
   final String nom;
-  final String email;
+  final String? email;
   final String? telephone;
   final String? adresse;
   final DateTime dateCreation;
@@ -9,7 +9,7 @@ class Client {
   Client({
     this.id,
     required this.nom,
-    required this.email,
+    this.email,
     this.telephone,
     this.adresse,
     required this.dateCreation,

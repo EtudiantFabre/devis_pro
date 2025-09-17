@@ -33,7 +33,7 @@ class DatabaseHelper {
       CREATE TABLE clients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nom TEXT NOT NULL,
-        email TEXT NOT NULL,
+        email TEXT,
         telephone TEXT,
         adresse TEXT,
         date_creation INTEGER NOT NULL

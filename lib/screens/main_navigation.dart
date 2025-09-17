@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import 'create_quote_screen.dart';
 import 'manage_clients_products_screen.dart';
 import 'subscription_screen.dart';
+import 'settings_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -19,6 +20,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const CreateQuoteScreen(),
     const ManageClientsProductsScreen(),
     const SubscriptionScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -32,10 +34,10 @@ class _MainNavigationState extends State<MainNavigation> {
             _currentIndex = index;
           });
         },
-        type: BottomNavigationBarType.fixed,
+        type: BottomNavigationBarType.shifting,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
             label: 'Accueil',
           ),
           BottomNavigationBarItem(
@@ -43,12 +45,16 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Nouveau Devis',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
+            icon: Icon(Icons.people_outline),
             label: 'Clients & Produits',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.star),
+            icon: Icon(Icons.star_outline),
             label: 'Premium',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            label: 'Réglages',
           ),
         ],
       ),

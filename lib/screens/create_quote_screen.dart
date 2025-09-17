@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../services/settings_service.dart';
 import '../database/database_helper.dart';
 import '../models/client.dart';
 import '../models/produit.dart';
@@ -88,7 +90,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                   ),
                 ),
                 title: Text(client.nom),
-                subtitle: Text(client.email),
+                subtitle: Text(client.email ?? ''),
                 onTap: () => Navigator.pop(context, client),
               );
             },
@@ -130,7 +132,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Email *',
+                  labelText: 'Email (optionnel)',
                   hintText: 'client@example.com',
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -163,7 +165,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
+              if (nameController.text.isNotEmpty) {
                 Navigator.pop(context, true);
               }
             },
@@ -177,7 +179,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
       try {
         final client = Client(
           nom: nameController.text,
-          email: emailController.text,
+          email: emailController.text.isNotEmpty ? emailController.text : null,
           telephone: phoneController.text.isNotEmpty ? phoneController.text : null,
           adresse: addressController.text.isNotEmpty ? addressController.text : null,
           dateCreation: DateTime.now(),
@@ -242,7 +244,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                   child: const Icon(Icons.inventory, color: Colors.white),
                 ),
                 title: Text(product.nom),
-                subtitle: Text('${NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(product.prixUnitaire)} ${product.unite ?? ''}'),
+                subtitle: Text('${context.read<SettingsService>().formatAmount(product.prixUnitaire)} ${product.unite ?? ''}'),
                 onTap: () => Navigator.pop(context, product),
               );
             },
@@ -359,7 +361,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Prix unitaire: ${NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(product.prixUnitaire)}'),
+            Text('Prix unitaire: ${context.read<SettingsService>().formatAmount(product.prixUnitaire)}'),
             const SizedBox(height: 16),
             TextField(
               controller: quantityController,
@@ -682,14 +684,14 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            '${item.quantite} × ${NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(item.prixUnitaire)}',
+                                            '${item.quantite} × ${context.read<SettingsService>().formatAmount(item.prixUnitaire)}',
                                             style: Theme.of(context).textTheme.bodySmall,
                                           ),
                                         ],
                                       ),
                                     ),
                                     Text(
-                                      NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(item.total),
+                                      context.read<SettingsService>().formatAmount(item.total),
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: AppTheme.primaryColor,
@@ -752,7 +754,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       Text(
-                        NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(_calculateTotal()),
+                        context.read<SettingsService>().formatAmount(_calculateTotal()),
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppTheme.primaryColor,

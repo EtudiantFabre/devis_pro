@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../services/settings_service.dart';
 import '../database/database_helper.dart';
 import '../models/client.dart';
 import '../models/produit.dart';
@@ -485,7 +487,7 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(client.email),
+                            Text(client.email ?? ''),
                             if (client.telephone != null) Text(client.telephone!),
                             if (client.adresse != null) Text(client.adresse!),
                             const SizedBox(height: 4),
@@ -597,7 +599,7 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                             Row(
                               children: [
                                 Text(
-                                  NumberFormat.currency(locale: 'fr_FR', symbol: '€').format(product.prixUnitaire),
+                                  context.read<SettingsService>().formatAmount(product.prixUnitaire),
                                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                     color: AppTheme.primaryColor,
                                     fontWeight: FontWeight.bold,

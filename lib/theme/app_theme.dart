@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF6B73FF);
-  static const Color secondaryColor = Color(0xFF9B59B6);
-  static const Color accentColor = Color(0xFF2ECC71);
-  static const Color backgroundColor = Color(0xFFF8F9FA);
+  // Palette noir & blanc avec accents neutres
+  static const Color primaryColor = Colors.black;
+  static const Color secondaryColor = Colors.black87;
+  static const Color accentColor = Colors.black54;
+  static const Color backgroundColor = Colors.white;
   static const Color surfaceColor = Colors.white;
   static const Color errorColor = Color(0xFFE74C3C);
   static const Color warningColor = Color(0xFFF39C12);
   static const Color successColor = Color(0xFF27AE60);
   
-  static const Color textPrimary = Color(0xFF2C3E50);
-  static const Color textSecondary = Color(0xFF7F8C8D);
-  static const Color textLight = Color(0xFFBDC3C7);
+  static const Color textPrimary = Colors.black87;
+  static const Color textSecondary = Colors.black54;
+  static const Color textLight = Colors.black26;
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -28,14 +29,14 @@ class AppTheme {
       ),
       
       appBarTheme: const AppBarTheme(
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: primaryColor,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: Colors.white,
+          color: primaryColor,
         ),
       ),
       
@@ -101,11 +102,13 @@ class AppTheme {
       ),
       
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceColor,
+        backgroundColor: Colors.white,
         selectedItemColor: primaryColor,
         unselectedItemColor: textSecondary,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
+        type: BottomNavigationBarType.shifting,
+        elevation: 4,
+        selectedIconTheme: IconThemeData(size: 26),
+        unselectedIconTheme: IconThemeData(size: 22),
       ),
       
       textTheme: const TextTheme(
