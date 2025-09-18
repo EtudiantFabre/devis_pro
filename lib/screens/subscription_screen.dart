@@ -24,35 +24,46 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // En-tête avec illustration
-            Card(
-              color: AppTheme.primaryColor.withOpacity(0.1),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.star,
-                      size: 64,
-                      color: AppTheme.primaryColor,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Passez à DevisPro Premium',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // coins plus arrondis
+                  side: BorderSide(
+                      color: Colors.black.withOpacity(0.1), width: 1.0),
+                ),
+                elevation: 5,
+                color: AppTheme.primaryColor.withOpacity(0.1),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        size: 64,
                         color: AppTheme.primaryColor,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Débloquez toutes les fonctionnalités avancées pour optimiser votre gestion de devis',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppTheme.textSecondary,
+                      const SizedBox(height: 16),
+                      Text(
+                        'Passez à DevisPro Premium',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryColor,
+                                ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        'Débloquez toutes les fonctionnalités avancées pour optimiser votre gestion de devis',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -69,21 +80,24 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             _buildFeatureCard(
               icon: Icons.cloud_sync,
               title: 'Synchronisation Cloud',
-              description: 'Sauvegardez et synchronisez vos devis sur tous vos appareils',
+              description:
+                  'Sauvegardez et synchronisez vos devis sur tous vos appareils',
               isPremium: true,
             ),
 
             _buildFeatureCard(
               icon: Icons.analytics,
               title: 'Analytics Avancées',
-              description: 'Tableaux de bord détaillés et statistiques de performance',
+              description:
+                  'Tableaux de bord détaillés et statistiques de performance',
               isPremium: true,
             ),
 
             _buildFeatureCard(
               icon: Icons.palette,
               title: 'Personnalisation',
-              description: 'Logos personnalisés, couleurs et templates de devis',
+              description:
+                  'Logos personnalisés, couleurs et templates de devis',
               isPremium: true,
             ),
 
@@ -97,7 +111,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             _buildFeatureCard(
               icon: Icons.support_agent,
               title: 'Support Prioritaire',
-              description: 'Assistance technique dédiée et formation personnalisée',
+              description:
+                  'Assistance technique dédiée et formation personnalisée',
               isPremium: true,
             ),
 
@@ -119,6 +134,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
             // Sélecteur de période
             Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16), // coins plus arrondis
+                side: BorderSide(
+                    color: Colors.black.withOpacity(0.1), width: 1.0),
+              ),
+              elevation: 5,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -129,16 +150,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: _isMonthlySelected ? AppTheme.primaryColor : Colors.transparent,
+                            color: _isMonthlySelected
+                                ? AppTheme.primaryColor
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: _isMonthlySelected ? AppTheme.primaryColor : Colors.grey[300]!,
+                              color: _isMonthlySelected
+                                  ? AppTheme.primaryColor
+                                  : Colors.grey[300]!,
                             ),
                           ),
                           child: Text(
                             'Mensuel',
                             style: TextStyle(
-                              color: _isMonthlySelected ? Colors.white : AppTheme.textPrimary,
+                              color: _isMonthlySelected
+                                  ? Colors.white
+                                  : AppTheme.textPrimary,
                               fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.center,
@@ -153,10 +180,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: !_isMonthlySelected ? AppTheme.primaryColor : Colors.transparent,
+                            color: !_isMonthlySelected
+                                ? AppTheme.primaryColor
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: !_isMonthlySelected ? AppTheme.primaryColor : Colors.grey[300]!,
+                              color: !_isMonthlySelected
+                                  ? AppTheme.primaryColor
+                                  : Colors.grey[300]!,
                             ),
                           ),
                           child: Column(
@@ -164,7 +195,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               Text(
                                 'Annuel',
                                 style: TextStyle(
-                                  color: !_isMonthlySelected ? Colors.white : AppTheme.textPrimary,
+                                  color: !_isMonthlySelected
+                                      ? Colors.white
+                                      : AppTheme.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
@@ -192,6 +225,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
             // Plan sélectionné
             Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16), // coins plus arrondis
+                side: BorderSide(
+                    color: Colors.black.withOpacity(0.1), width: 1.0),
+              ),
+              elevation: 5,
               color: AppTheme.primaryColor.withOpacity(0.1),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -205,15 +244,23 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           children: [
                             Text(
                               'Plan Premium',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             Text(
-                              _isMonthlySelected ? 'Facturation mensuelle' : 'Facturation annuelle',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
+                              _isMonthlySelected
+                                  ? 'Facturation mensuelle'
+                                  : 'Facturation annuelle',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                             ),
                           ],
                         ),
@@ -222,24 +269,33 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           children: [
                             Text(
                               _isMonthlySelected ? '19,99€' : '191,90€',
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryColor,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryColor,
+                                  ),
                             ),
                             if (!_isMonthlySelected)
                               Text(
                                 'au lieu de 239,88€',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppTheme.successColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: AppTheme.successColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                               ),
                             Text(
                               _isMonthlySelected ? '/ mois' : '/ an',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                             ),
                           ],
                         ),
@@ -255,7 +311,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         ),
                         child: const Text(
                           'Commencer l\'essai gratuit',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -263,8 +320,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     Text(
                       '7 jours d\'essai gratuit, puis facturation automatique',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+                            color: AppTheme.textSecondary,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -347,6 +404,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     required bool isPremium,
   }) {
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16), // coins plus arrondis
+        side: BorderSide(color: Colors.black.withOpacity(0.1), width: 1.0),
+      ),
+      elevation: 5,
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -355,7 +417,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isPremium 
+                color: isPremium
                     ? AppTheme.primaryColor.withOpacity(0.1)
                     : AppTheme.accentColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -376,14 +438,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       Expanded(
                         child: Text(
                           title,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                       ),
                       if (isPremium)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppTheme.primaryColor,
                             borderRadius: BorderRadius.circular(12),
@@ -403,8 +467,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   Text(
                     description,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
+                          color: AppTheme.textSecondary,
+                        ),
                   ),
                 ],
               ),
@@ -422,8 +486,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         title: Text(
           question,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
         ),
         children: [
           Padding(
@@ -431,8 +495,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             child: Text(
               answer,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+                    color: AppTheme.textSecondary,
+                  ),
             ),
           ),
         ],

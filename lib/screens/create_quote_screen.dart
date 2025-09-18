@@ -19,11 +19,11 @@ class CreateQuoteScreen extends StatefulWidget {
 class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   final _formKey = GlobalKey<FormState>();
-  
+
   // Contrôleurs pour le formulaire
   final _clientController = TextEditingController();
   final _notesController = TextEditingController();
-  
+
   // Variables d'état
   Client? _selectedClient;
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 30));
@@ -53,7 +53,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
 
   Future<void> _selectClient() async {
     final clients = await _dbHelper.getAllClients();
-    
+
     if (clients.isEmpty) {
       _showAddClientDialog();
       return;
@@ -79,7 +79,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                   },
                 );
               }
-              
+
               final client = clients[index - 1];
               return ListTile(
                 leading: CircleAvatar(
@@ -180,8 +180,10 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
         final client = Client(
           nom: nameController.text,
           email: emailController.text.isNotEmpty ? emailController.text : null,
-          telephone: phoneController.text.isNotEmpty ? phoneController.text : null,
-          adresse: addressController.text.isNotEmpty ? addressController.text : null,
+          telephone:
+              phoneController.text.isNotEmpty ? phoneController.text : null,
+          adresse:
+              addressController.text.isNotEmpty ? addressController.text : null,
           dateCreation: DateTime.now(),
         );
 
@@ -210,7 +212,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
 
   Future<void> _addProduct() async {
     final products = await _dbHelper.getAllProduits();
-    
+
     if (products.isEmpty) {
       _showAddProductDialog();
       return;
@@ -236,7 +238,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                   },
                 );
               }
-              
+
               final product = products[index - 1];
               return ListTile(
                 leading: CircleAvatar(
@@ -244,7 +246,8 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                   child: const Icon(Icons.inventory, color: Colors.white),
                 ),
                 title: Text(product.nom),
-                subtitle: Text('${context.read<SettingsService>().formatAmount(product.prixUnitaire)} ${product.unite ?? ''}'),
+                subtitle: Text(
+                    '${context.read<SettingsService>().formatAmount(product.prixUnitaire)} ${product.unite ?? ''}'),
                 onTap: () => Navigator.pop(context, product),
               );
             },
@@ -315,8 +318,8 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
-                  descriptionController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
+                  descriptionController.text.isNotEmpty &&
                   priceController.text.isNotEmpty) {
                 Navigator.pop(context, true);
               }
@@ -361,7 +364,8 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Prix unitaire: ${context.read<SettingsService>().formatAmount(product.prixUnitaire)}'),
+            Text(
+                'Prix unitaire: ${context.read<SettingsService>().formatAmount(product.prixUnitaire)}'),
             const SizedBox(height: 16),
             TextField(
               controller: quantityController,
@@ -479,7 +483,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Devis créé avec succès')),
         );
-        
+
         // Réinitialiser le formulaire
         _resetForm();
       }
@@ -572,6 +576,13 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
 
               // Section date d'échéance
               Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // coins plus arrondis
+                  side: BorderSide(
+                      color: Colors.black.withOpacity(0.1), width: 1.0),
+                ),
+                elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -611,6 +622,13 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
 
               // Section produits
               Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // coins plus arrondis
+                  side: BorderSide(
+                      color: Colors.black.withOpacity(0.1), width: 1.0),
+                ),
+                elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -631,12 +649,13 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      
                       if (_items.isEmpty)
                         Container(
                           padding: const EdgeInsets.all(32),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid),
+                            border: Border.all(
+                                color: Colors.grey[300]!,
+                                style: BorderStyle.solid),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
@@ -654,9 +673,12 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 'Cliquez sur "Ajouter" pour commencer',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: AppTheme.textSecondary,
+                                    ),
                               ),
                             ],
                           ),
@@ -676,30 +698,41 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             item.nom,
-                                            style: Theme.of(context).textTheme.titleMedium,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium,
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             '${item.quantite} × ${context.read<SettingsService>().formatAmount(item.prixUnitaire)}',
-                                            style: Theme.of(context).textTheme.bodySmall,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
                                           ),
                                         ],
                                       ),
                                     ),
                                     Text(
-                                      context.read<SettingsService>().formatAmount(item.total),
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppTheme.primaryColor,
-                                      ),
+                                      context
+                                          .read<SettingsService>()
+                                          .formatAmount(item.total),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.primaryColor,
+                                          ),
                                     ),
                                     IconButton(
                                       onPressed: () => _removeItem(index),
-                                      icon: const Icon(Icons.delete, color: AppTheme.errorColor),
+                                      icon: const Icon(Icons.delete,
+                                          color: AppTheme.errorColor),
                                     ),
                                   ],
                                 ),
@@ -754,11 +787,14 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       Text(
-                        context.read<SettingsService>().formatAmount(_calculateTotal()),
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
-                        ),
+                        context
+                            .read<SettingsService>()
+                            .formatAmount(_calculateTotal()),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryColor,
+                                ),
                       ),
                     ],
                   ),

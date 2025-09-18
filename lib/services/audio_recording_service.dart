@@ -4,12 +4,11 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
 class AudioRecordingService {
-  final Record _recorder = Record();
+  final AudioRecorder _recorder = AudioRecorder();
   String? _currentPath;
 
   Future<bool> hasPermission() async {
     final mic = await Permission.microphone.request();
-    // Sur Android 13+, READ_MEDIA_AUDIO n'est pas requis pour la capture
     return mic.isGranted;
   }
 
@@ -27,11 +26,13 @@ class AudioRecordingService {
         '${dir.path}/discussion_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     await _recorder.start(
+      const RecordConfig(
+        encoder: AudioEncoder.aacLc,
+        bitRate: 128000,
+        sampleRate: 44100,
+        numChannels: 1,
+      ),
       path: filePath,
-      encoder: AudioEncoder.aacLc,
-      bitRate: 128000,
-      samplingRate: 44100,
-      numChannels: 1,
     );
 
     _currentPath = filePath;
@@ -54,5 +55,3 @@ class AudioRecordingService {
     await _recorder.dispose();
   }
 }
-
-

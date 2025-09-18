@@ -187,6 +187,12 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                 children: [
                   // Informations du devis
                   Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(16), // coins plus arrondis
+                    ),
+                    elevation: 6,
+                    shadowColor: Colors.black.withOpacity(0.3),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(

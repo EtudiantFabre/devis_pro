@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final quotes = await _dbHelper.getAllDevis();
       setState(() {
@@ -104,6 +104,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     // Section de bienvenue
                     Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16), // coins plus arrondis
+                        side: BorderSide(
+                            color: Colors.black.withOpacity(0.1), width: 1.0),
+                      ),
+                      elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(
@@ -116,9 +123,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 8),
                             Text(
                               'Créez des devis professionnels en toute simplicité',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                             ),
                             const SizedBox(height: 16),
                             Row(
@@ -129,12 +139,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Navigation vers création de devis
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => const CreateQuoteScreen(),
+                                          builder: (_) =>
+                                              const CreateQuoteScreen(),
                                         ),
                                       );
                                     },
                                     icon: const Icon(Icons.add),
-                                    label: const Text('Nouveau Devis'),
+                                    label: const Text('Devis'),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -144,7 +155,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       // Navigation vers gestion clients/produits
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => const ManageClientsProductsScreen(),
+                                          builder: (_) =>
+                                              const ManageClientsProductsScreen(),
                                         ),
                                       );
                                     },
@@ -158,9 +170,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Section statistiques
                     Text(
                       'Statistiques',
@@ -181,7 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: _buildStatCard(
                             'Acceptés',
-                            _recentQuotes.where((q) => q.statut == 'accepté').length.toString(),
+                            _recentQuotes
+                                .where((q) => q.statut == 'accepté')
+                                .length
+                                .toString(),
                             Icons.check_circle,
                             AppTheme.successColor,
                           ),
@@ -190,16 +205,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: _buildStatCard(
                             'En Attente',
-                            _recentQuotes.where((q) => q.statut == 'envoyé').length.toString(),
+                            _recentQuotes
+                                .where((q) => q.statut == 'envoyé')
+                                .length
+                                .toString(),
                             Icons.schedule,
                             AppTheme.warningColor,
                           ),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Section devis récents
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -217,45 +235,61 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    
+
                     if (_recentQuotes.isEmpty)
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.description_outlined,
-                                size: 64,
-                                color: AppTheme.textLight,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Aucun devis créé',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Commencez par créer votre premier devis',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                16), // coins plus arrondis
+                            side: BorderSide(
+                                color: Colors.black.withOpacity(0.1),
+                                width: 1.0),
+                          ),
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.description_outlined,
+                                  size: 64,
+                                  color: AppTheme.textLight,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  // Navigation vers création de devis
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const CreateQuoteScreen(),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.add),
-                                label: const Text('Créer un devis'),
-                              ),
-                            ],
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Aucun devis créé',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Commencez par créer votre premier devis',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: AppTheme.textSecondary,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    // Navigation vers création de devis
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const CreateQuoteScreen(),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Créer un devis'),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       )
@@ -286,12 +320,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Text(
                                     quote.client?.nom ?? 'Client inconnu',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    DateFormat('dd/MM/yyyy').format(quote.dateCreation),
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    DateFormat('dd/MM/yyyy')
+                                        .format(quote.dateCreation),
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ],
                               ),
@@ -300,25 +337,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Text(
-                                    context.read<SettingsService>().formatAmount(quote.total),
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.primaryColor,
-                                    ),
+                                    context
+                                        .read<SettingsService>()
+                                        .formatAmount(quote.total),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.primaryColor,
+                                        ),
                                   ),
                                   const SizedBox(height: 4),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: _getStatusColor(quote.statut).withOpacity(0.1),
+                                      color: _getStatusColor(quote.statut)
+                                          .withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       _getStatusText(quote.statut),
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: _getStatusColor(quote.statut),
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color:
+                                                _getStatusColor(quote.statut),
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -327,7 +375,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => QuoteDetailScreen(quote: quote),
+                                    builder: (context) =>
+                                        QuoteDetailScreen(quote: quote),
                                   ),
                                 );
                               },
@@ -342,8 +391,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
+    return Card.outlined(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16), // coins plus arrondis
+        side: BorderSide(color: Colors.black.withOpacity(0.1), width: 1.0),
+      ),
+      elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -353,9 +408,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               value,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 4),
             Text(
