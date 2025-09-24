@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'create_quote_screen.dart';
 import 'manage_clients_products_screen.dart';
+import 'quotes_list_screen.dart';
+import 'audio_recording_screen.dart';
 import 'subscription_screen.dart';
 import 'settings_screen.dart';
 
@@ -17,10 +19,11 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
+    const QuotesListScreen(),
     const CreateQuoteScreen(),
+    const AudioRecordingScreen(),
     const ManageClientsProductsScreen(),
-    const SubscriptionScreen(),
-    const SettingsScreen(),
+    //const SettingsScreen(),
   ];
 
   @override
@@ -41,21 +44,25 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Accueil',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.description_outlined),
+            label: 'Devis',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
             label: 'Nouveau Devis',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.mic_outlined),
+            label: 'Audio',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people_outline),
             label: 'Clients & Produits',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star_outline),
-            label: 'Premium',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            label: 'Réglages',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.settings_outlined),
+          //   label: 'Réglages',
+          // ),
         ],
       ),
     );

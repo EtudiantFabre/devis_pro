@@ -6,8 +6,11 @@ import '../theme/app_theme.dart';
 import 'quote_detail_screen.dart';
 import 'create_quote_screen.dart';
 import 'manage_clients_products_screen.dart';
+import 'quotes_list_screen.dart';
+import 'audio_recording_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/settings_service.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,6 +93,17 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.refresh),
             onPressed: _loadRecentQuotes,
           ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              ).then((_) => _loadRecentQuotes());
+            },
+          ),
         ],
       ),
       body: RefreshIndicator(
@@ -102,6 +116,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'Bienvenue sur DevisPro',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Créez des devis professionnels en toute simplicité',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
                     // Section de bienvenue
                     Card(
                       shape: RoundedRectangleBorder(
@@ -116,21 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Bienvenue sur DevisPro',
-                              style: Theme.of(context).textTheme.headlineSmall,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Créez des devis professionnels en toute simplicité',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
-                            ),
-                            const SizedBox(height: 16),
                             Row(
                               children: [
                                 Expanded(
@@ -165,6 +176,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  // Navigation vers enregistrement audio
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const AudioRecordingScreen(),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.mic),
+                                label: const Text('Enregistrement Audio'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.primaryColor,
+                                  side:
+                                      BorderSide(color: AppTheme.primaryColor),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -228,7 +261,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         TextButton(
                           onPressed: () {
-                            // Voir tous les devis
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const QuotesListScreen(),
+                              ),
+                            ).then((_) => _loadRecentQuotes());
                           },
                           child: const Text('Voir tout'),
                         ),

@@ -7,6 +7,7 @@ import '../models/devis.dart';
 import '../models/item_devis.dart';
 import '../theme/app_theme.dart';
 import '../services/pdf_service.dart';
+import 'pdf_preview_screen.dart';
 
 class QuoteDetailScreen extends StatefulWidget {
   final Devis quote;
@@ -115,25 +116,88 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Choisir un modèle de PDF',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
             ListTile(
-              leading: const Icon(Icons.description),
+              leading: const Icon(Icons.description, color: AppTheme.primaryColor),
               title: const Text('Classique'),
-              onTap: () => Navigator.pop(context, PdfTemplateStyle.classique),
+              subtitle: const Text('Design traditionnel avec en-tête coloré'),
+              trailing: const Icon(Icons.visibility),
+              onTap: () {
+                Navigator.pop(context);
+                _previewTemplate(PdfTemplateStyle.classique);
+              },
             ),
             ListTile(
-              leading: const Icon(Icons.filter_none),
+              leading: const Icon(Icons.filter_none, color: AppTheme.primaryColor),
               title: const Text('Minimal'),
-              onTap: () => Navigator.pop(context, PdfTemplateStyle.minimal),
+              subtitle: const Text('Style épuré et moderne'),
+              trailing: const Icon(Icons.visibility),
+              onTap: () {
+                Navigator.pop(context);
+                _previewTemplate(PdfTemplateStyle.minimal);
+              },
             ),
             ListTile(
-              leading: const Icon(Icons.layers),
+              leading: const Icon(Icons.layers, color: AppTheme.primaryColor),
               title: const Text('Moderne'),
-              onTap: () => Navigator.pop(context, PdfTemplateStyle.moderne),
+              subtitle: const Text('Design contemporain avec bordures'),
+              trailing: const Icon(Icons.visibility),
+              onTap: () {
+                Navigator.pop(context);
+                _previewTemplate(PdfTemplateStyle.moderne);
+              },
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
+  }
+
+  void _previewTemplate(PdfTemplateStyle style) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PdfPreviewScreen(
+          quote: widget.quote,
+          items: _items,
+          style: style,
+        ),
+      ),
+    ).then((selectedStyle) {
+      if (selectedStyle != null) {
+        _generateAndSharePDFWithStyle(selectedStyle);
+      }
+    });
+  }
+
+  Future<void> _generateAndSharePDFWithStyle(PdfTemplateStyle style) async {
+    try {
+      final pdfService = PdfService();
+      final pdfFile = await pdfService.generateQuotePDF(
+        widget.quote,
+        _items,
+        style: style,
+      );
+      if (mounted) {
+        await pdfService.sharePDF(pdfFile, '');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PDF généré, choisissez une option de partage')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la génération du PDF: $e')),
+        );
+      }
+    }
   }
 
   Future<String?> _showEmailDialog() async {

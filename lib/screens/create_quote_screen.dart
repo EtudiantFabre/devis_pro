@@ -10,7 +10,9 @@ import '../models/item_devis.dart';
 import '../theme/app_theme.dart';
 
 class CreateQuoteScreen extends StatefulWidget {
-  const CreateQuoteScreen({super.key});
+  final String? initialText;
+  
+  const CreateQuoteScreen({super.key, this.initialText});
 
   @override
   State<CreateQuoteScreen> createState() => _CreateQuoteScreenState();
@@ -35,6 +37,9 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
   void initState() {
     super.initState();
     _generateQuoteNumber();
+    if (widget.initialText != null) {
+      _notesController.text = widget.initialText!;
+    }
   }
 
   @override
