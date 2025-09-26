@@ -5,8 +5,12 @@ import '../database/database_helper.dart';
 import '../models/devis.dart';
 import '../theme/app_theme.dart';
 import '../services/settings_service.dart';
+import '../services/pdf_service.dart';
+import '../models/item_devis.dart';
+import '../models/entreprise.dart';
 import 'quote_detail_screen.dart';
 import 'create_quote_screen.dart';
+import 'enterprise_screen.dart';
 
 class QuotesListScreen extends StatefulWidget {
   const QuotesListScreen({super.key});
@@ -17,13 +21,20 @@ class QuotesListScreen extends StatefulWidget {
 
 class _QuotesListScreenState extends State<QuotesListScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
+  final PdfService _pdfService = PdfService();
   final TextEditingController _searchController = TextEditingController();
   List<Devis> _allQuotes = [];
   List<Devis> _filteredQuotes = [];
   bool _isLoading = true;
   String _selectedStatus = 'Tous';
 
-  final List<String> _statusOptions = ['Tous', 'Brouillon', 'Envoyé', 'Accepté', 'Refusé'];
+  final List<String> _statusOptions = [
+    'Tous',
+    'Brouillon',
+    'Envoyé',
+    'Accepté',
+    'Refusé'
+  ];
 
   @override
   void initState() {
@@ -70,10 +81,10 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
             quote.numero.toLowerCase().contains(query) ||
             quote.client?.nom.toLowerCase().contains(query) == true ||
             quote.client?.email!.toLowerCase().contains(query) == true;
-        
+
         final matchesStatus = _selectedStatus == 'Tous' ||
             _getStatusText(quote.statut) == _selectedStatus;
-        
+
         return matchesSearch && matchesStatus;
       }).toList();
     });
@@ -127,8 +138,8 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
             Text(
               '${_allQuotes.length} devis créés',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+                    color: AppTheme.textSecondary,
+                  ),
             ),
           ],
         ),
@@ -139,6 +150,18 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
               // Option pour filtres avancés
             },
             tooltip: 'Filtrer',
+          ),
+          IconButton(
+            icon: const Icon(Icons.business),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EnterpriseScreen(),
+                ),
+              );
+            },
+            tooltip: 'Mon entreprise',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -176,7 +199,7 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
               itemBuilder: (context, index) {
                 final status = _statusOptions[index];
                 final isSelected = _selectedStatus == status;
-                
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
@@ -190,8 +213,11 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                     selectedColor: AppTheme.primaryColor.withOpacity(0.2),
                     checkmarkColor: AppTheme.primaryColor,
                     labelStyle: TextStyle(
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondary,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.textSecondary,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 );
@@ -261,11 +287,12 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                   ? 'Essayez de modifier vos critères de recherche'
                   : 'Commencez par créer votre premier devis',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+                    color: AppTheme.textSecondary,
+                  ),
               textAlign: TextAlign.center,
             ),
-            if (_searchController.text.isEmpty && _selectedStatus == 'Tous') ...[
+            if (_searchController.text.isEmpty &&
+                _selectedStatus == 'Tous') ...[
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () {
@@ -319,11 +346,12 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                   Text(
                     quote.numero,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getStatusColor(quote.statut).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -331,16 +359,16 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                     child: Text(
                       _getStatusText(quote.statut),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: _getStatusColor(quote.statut),
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: _getStatusColor(quote.statut),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Informations client
               Row(
                 children: [
@@ -358,9 +386,9 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 4),
-              
+
               // Description (si disponible)
               if (quote.notes != null && quote.notes!.isNotEmpty) ...[
                 Row(
@@ -373,19 +401,19 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        quote.notes!.length > 50 
+                        quote.notes!.length > 50
                             ? '${quote.notes!.substring(0, 50)}...'
                             : quote.notes!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
+                              color: AppTheme.textSecondary,
+                            ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
               ],
-              
+
               // Dates
               Row(
                 children: [
@@ -398,33 +426,38 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                   Text(
                     'Créé le ${DateFormat('dd/MM/yyyy').format(quote.dateCreation)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
+                          color: AppTheme.textSecondary,
+                        ),
                   ),
                   const SizedBox(width: 16),
                   Text(
                     'Valide jusqu\'au ${DateFormat('dd/MM/yyyy').format(quote.dateEcheance)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
+                          color: AppTheme.textSecondary,
+                        ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Montant et actions
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    context.read<SettingsService>().formatAmount(quote.total),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryColor,
+                  Expanded(
+                    child: Text(
+                      context.read<SettingsService>().formatAmount(quote.total),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryColor,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ),
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.visibility),
@@ -432,7 +465,8 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => QuoteDetailScreen(quote: quote),
+                              builder: (context) =>
+                                  QuoteDetailScreen(quote: quote),
                             ),
                           ).then((_) => _loadQuotes());
                         },
@@ -440,24 +474,24 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          // TODO: Implémenter l'édition
-                        },
+                        onPressed: () => _showEditDialog(quote),
                         tooltip: 'Modifier',
                       ),
                       IconButton(
                         icon: const Icon(Icons.upload),
-                        onPressed: () {
-                          // TODO: Implémenter l'envoi
-                        },
+                        onPressed: () => _sendQuote(quote),
                         tooltip: 'Envoyer',
                       ),
                       IconButton(
                         icon: const Icon(Icons.download),
-                        onPressed: () {
-                          // TODO: Implémenter le téléchargement PDF
-                        },
+                        onPressed: () => _downloadQuote(quote),
                         tooltip: 'Télécharger',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _confirmAndDelete(quote),
+                        tooltip: 'Supprimer',
+                        color: AppTheme.errorColor,
                       ),
                     ],
                   ),
@@ -468,5 +502,179 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
         ),
       ),
     );
+  }
+}
+
+extension on _QuotesListScreenState {
+  Future<void> _showEditDialog(Devis quote) async {
+    final notesController = TextEditingController(text: quote.notes ?? '');
+    String statut = quote.statut;
+    bool tvaApplicable = quote.tvaApplicable;
+    String templateType = quote.templateType ?? 'services';
+    double tvaRate = quote.tvaRate ?? 20.0;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Modifier ${quote.numero}'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              DropdownButtonFormField<String>(
+                value: statut,
+                items: const [
+                  DropdownMenuItem(
+                      value: 'brouillon', child: Text('Brouillon')),
+                  DropdownMenuItem(value: 'envoyé', child: Text('Envoyé')),
+                  DropdownMenuItem(value: 'accepté', child: Text('Accepté')),
+                  DropdownMenuItem(value: 'refusé', child: Text('Refusé')),
+                ],
+                onChanged: (v) => statut = v!,
+                decoration: const InputDecoration(labelText: 'Statut'),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: templateType,
+                items: const [
+                  DropdownMenuItem(
+                      value: 'auto_entrepreneur',
+                      child: Text('Auto-entrepreneur')),
+                  DropdownMenuItem(
+                      value: 'services',
+                      child: Text('Prestataire de services')),
+                  DropdownMenuItem(value: 'batiment', child: Text('Bâtiment')),
+                ],
+                onChanged: (v) => templateType = v!,
+                decoration: const InputDecoration(labelText: 'Modèle PDF'),
+              ),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                value: tvaApplicable,
+                onChanged: (v) {
+                  tvaApplicable = v;
+                },
+                title: const Text('TVA applicable'),
+              ),
+              if (tvaApplicable) ...[
+                TextFormField(
+                  initialValue: tvaRate.toString(),
+                  decoration:
+                      const InputDecoration(labelText: 'Taux de TVA (%)'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) => tvaRate = double.tryParse(v) ?? tvaRate,
+                ),
+              ],
+              const SizedBox(height: 12),
+              TextField(
+                controller: notesController,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'Notes'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Enregistrer')),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      final updated = quote.copyWith(
+        statut: statut,
+        notes: notesController.text.isNotEmpty ? notesController.text : null,
+        tvaApplicable: tvaApplicable,
+        tvaRate: tvaApplicable ? tvaRate : null,
+        templateType: templateType,
+      );
+      await _dbHelper.updateDevis(updated);
+      await _loadQuotes();
+    }
+  }
+
+  Future<void> _sendQuote(Devis quote) async {
+    try {
+      final items = await _dbHelper.getItemsDevis(quote.id!);
+      final entreprises = await _dbHelper.getAllEntreprises();
+      final ent = entreprises.isNotEmpty ? entreprises.first : null;
+      final pdfFile = await _pdfService.generateQuotePDF(
+        quote,
+        items,
+        entreprise: ent,
+      );
+      await _pdfService.sharePDF(pdfFile, quote.client?.email ?? '');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Erreur envoi: $e')));
+      }
+    }
+  }
+
+  Future<void> _downloadQuote(Devis quote) async {
+    try {
+      final items = await _dbHelper.getItemsDevis(quote.id!);
+      final entreprises = await _dbHelper.getAllEntreprises();
+      final ent = entreprises.isNotEmpty ? entreprises.first : null;
+      final pdfFile = await _pdfService.generateQuotePDF(
+        quote,
+        items,
+        entreprise: ent,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('PDF enregistré: ${pdfFile.path}')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Erreur téléchargement: $e')));
+      }
+    }
+  }
+
+  Future<void> _confirmAndDelete(Devis quote) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer le devis'),
+        content: Text('Voulez-vous supprimer ${quote.numero} ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        await _dbHelper.deleteDevis(quote.id!);
+        await _loadQuotes();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${quote.numero} supprimé')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur lors de la suppression: $e')),
+          );
+        }
+      }
+    }
   }
 }

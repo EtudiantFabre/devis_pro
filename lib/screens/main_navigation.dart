@@ -4,8 +4,6 @@ import 'create_quote_screen.dart';
 import 'manage_clients_products_screen.dart';
 import 'quotes_list_screen.dart';
 import 'audio_recording_screen.dart';
-import 'subscription_screen.dart';
-import 'settings_screen.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -37,7 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
             _currentIndex = index;
           });
         },
-        type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 import '../theme/app_theme.dart';
 import 'main_navigation.dart';
 
@@ -38,17 +39,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _OnboardSlide(
                     title: 'Mode Hors Ligne',
                     description: 'Créez et gérez vos devis sans Internet. Vos données restent sur votre appareil.',
-                    icon: Icons.offline_bolt,
+                    lottieAsset: 'assets/lottie/offline.json',
                   ),
                   _OnboardSlide(
                     title: 'Export PDF & Partage',
                     description: 'Générez des PDF professionnels et partagez-les par email ou messagerie.',
-                    icon: Icons.picture_as_pdf,
+                    lottieAsset: 'assets/lottie/pdf.json',
                   ),
                   _OnboardSlide(
                     title: 'Premium à venir',
                     description: 'Synchronisation cloud, analytics avancées, templates… restez à l\'écoute !',
-                    icon: Icons.star,
+                    lottieAsset: 'assets/lottie/premium.json',
                   ),
                 ],
               ),
@@ -89,8 +90,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class _OnboardSlide extends StatelessWidget {
   final String title;
   final String description;
-  final IconData icon;
-  const _OnboardSlide({required this.title, required this.description, required this.icon});
+  final String lottieAsset;
+  const _OnboardSlide({required this.title, required this.description, required this.lottieAsset});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +106,11 @@ class _OnboardSlide extends StatelessWidget {
               color: AppTheme.primaryColor.withOpacity(0.06),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 72, color: AppTheme.primaryColor),
+            child: SizedBox(
+              height: 120,
+              width: 120,
+              child: Lottie.asset(lottieAsset, repeat: true),
+            ),
           ),
           const SizedBox(height: 24),
           Text(title, style: Theme.of(context).textTheme.headlineSmall),

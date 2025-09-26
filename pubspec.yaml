@@ -57,9 +57,12 @@ dependencies:
   # Enregistrement audio & permissions
   record: ^6.1.1
   permission_handler: ^12.0.1
+  just_audio: ^0.9.42
+  # ffmpeg_kit_flutter_full_gpl: ^6.0.3  # Temporairement désactivé
 
   # Appels HTTP vers APIs IA (Whisper/GPT)
   http: ^1.2.2
+  lottie: ^3.1.2
 
 dev_dependencies:
   flutter_test:

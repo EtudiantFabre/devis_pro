@@ -339,6 +339,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, index) {
                           final quote = _recentQuotes[index];
                           return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  16), // coins plus arrondis
+                              side: BorderSide(
+                                  color: Colors.black.withOpacity(0.1),
+                                  width: 1.0),
+                            ),
+                            elevation: 5,
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               contentPadding: const EdgeInsets.all(16),

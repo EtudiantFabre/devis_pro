@@ -11,14 +11,16 @@ class ManageClientsProductsScreen extends StatefulWidget {
   const ManageClientsProductsScreen({super.key});
 
   @override
-  State<ManageClientsProductsScreen> createState() => _ManageClientsProductsScreenState();
+  State<ManageClientsProductsScreen> createState() =>
+      _ManageClientsProductsScreenState();
 }
 
-class _ManageClientsProductsScreenState extends State<ManageClientsProductsScreen>
+class _ManageClientsProductsScreenState
+    extends State<ManageClientsProductsScreen>
     with SingleTickerProviderStateMixin {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   late TabController _tabController;
-  
+
   List<Client> _clients = [];
   List<Produit> _products = [];
   bool _isLoading = true;
@@ -44,7 +46,7 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
     try {
       final clients = await _dbHelper.getAllClients();
       final products = await _dbHelper.getAllProduits();
-      
+
       setState(() {
         _clients = clients;
         _products = products;
@@ -65,8 +67,10 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
   Future<void> _showAddClientDialog({Client? client}) async {
     final nameController = TextEditingController(text: client?.nom ?? '');
     final emailController = TextEditingController(text: client?.email ?? '');
-    final phoneController = TextEditingController(text: client?.telephone ?? '');
-    final addressController = TextEditingController(text: client?.adresse ?? '');
+    final phoneController =
+        TextEditingController(text: client?.telephone ?? '');
+    final addressController =
+        TextEditingController(text: client?.adresse ?? '');
 
     final result = await showDialog<bool>(
       context: context,
@@ -120,7 +124,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && emailController.text.isNotEmpty) {
+              if (nameController.text.isNotEmpty &&
+                  emailController.text.isNotEmpty) {
                 Navigator.pop(context, true);
               }
             },
@@ -137,8 +142,11 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
           final newClient = Client(
             nom: nameController.text,
             email: emailController.text,
-            telephone: phoneController.text.isNotEmpty ? phoneController.text : null,
-            adresse: addressController.text.isNotEmpty ? addressController.text : null,
+            telephone:
+                phoneController.text.isNotEmpty ? phoneController.text : null,
+            adresse: addressController.text.isNotEmpty
+                ? addressController.text
+                : null,
             dateCreation: DateTime.now(),
           );
 
@@ -159,8 +167,11 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
           final updatedClient = client.copyWith(
             nom: nameController.text,
             email: emailController.text,
-            telephone: phoneController.text.isNotEmpty ? phoneController.text : null,
-            adresse: addressController.text.isNotEmpty ? addressController.text : null,
+            telephone:
+                phoneController.text.isNotEmpty ? phoneController.text : null,
+            adresse: addressController.text.isNotEmpty
+                ? addressController.text
+                : null,
           );
 
           await _dbHelper.updateClient(updatedClient);
@@ -190,14 +201,17 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
 
   Future<void> _showAddProductDialog({Produit? product}) async {
     final nameController = TextEditingController(text: product?.nom ?? '');
-    final descriptionController = TextEditingController(text: product?.description ?? '');
-    final priceController = TextEditingController(text: product?.prixUnitaire.toString() ?? '');
+    final descriptionController =
+        TextEditingController(text: product?.description ?? '');
+    final priceController =
+        TextEditingController(text: product?.prixUnitaire.toString() ?? '');
     final unitController = TextEditingController(text: product?.unite ?? '');
 
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(product == null ? 'Nouveau produit' : 'Modifier le produit'),
+        title:
+            Text(product == null ? 'Nouveau produit' : 'Modifier le produit'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -245,8 +259,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
           ),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
-                  descriptionController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
+                  descriptionController.text.isNotEmpty &&
                   priceController.text.isNotEmpty) {
                 Navigator.pop(context, true);
               }
@@ -320,7 +334,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer le client'),
-        content: Text('Êtes-vous sûr de vouloir supprimer le client "${client.nom}" ?'),
+        content: Text(
+            'Êtes-vous sûr de vouloir supprimer le client "${client.nom}" ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -328,7 +343,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.errorColor),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppTheme.errorColor),
             child: const Text('Supprimer'),
           ),
         ],
@@ -362,7 +378,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer le produit'),
-        content: Text('Êtes-vous sûr de vouloir supprimer le produit "${product.nom}" ?'),
+        content: Text(
+            'Êtes-vous sûr de vouloir supprimer le produit "${product.nom}" ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -370,7 +387,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.errorColor),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppTheme.errorColor),
             child: const Text('Supprimer'),
           ),
         ],
@@ -453,7 +471,7 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
             ],
           ),
         ),
-        
+
         // Liste des clients
         Expanded(
           child: _clients.isEmpty
@@ -470,6 +488,13 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                   itemBuilder: (context, index) {
                     final client = _clients[index];
                     return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16), // coins plus arrondis
+                        side: BorderSide(
+                            color: Colors.black.withOpacity(0.1), width: 1.0),
+                      ),
+                      elevation: 5,
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16),
@@ -488,14 +513,18 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(client.email ?? ''),
-                            if (client.telephone != null) Text(client.telephone!),
+                            if (client.telephone != null)
+                              Text(client.telephone!),
                             if (client.adresse != null) Text(client.adresse!),
                             const SizedBox(height: 4),
                             Text(
                               'Ajouté le ${DateFormat('dd/MM/yyyy').format(client.dateCreation)}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                             ),
                           ],
                         ),
@@ -525,9 +554,12 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                               value: 'delete',
                               child: Row(
                                 children: [
-                                  Icon(Icons.delete, size: 20, color: AppTheme.errorColor),
+                                  Icon(Icons.delete,
+                                      size: 20, color: AppTheme.errorColor),
                                   SizedBox(width: 8),
-                                  Text('Supprimer', style: TextStyle(color: AppTheme.errorColor)),
+                                  Text('Supprimer',
+                                      style: TextStyle(
+                                          color: AppTheme.errorColor)),
                                 ],
                               ),
                             ),
@@ -563,7 +595,7 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
             ],
           ),
         ),
-        
+
         // Liste des produits
         Expanded(
           child: _products.isEmpty
@@ -580,12 +612,20 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                   itemBuilder: (context, index) {
                     final product = _products[index];
                     return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16), // coins plus arrondis
+                        side: BorderSide(
+                            color: Colors.black.withOpacity(0.1), width: 1.0),
+                      ),
+                      elevation: 5,
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16),
                         leading: CircleAvatar(
                           backgroundColor: AppTheme.accentColor,
-                          child: const Icon(Icons.inventory, color: Colors.white),
+                          child:
+                              const Icon(Icons.inventory, color: Colors.white),
                         ),
                         title: Text(
                           product.nom,
@@ -599,17 +639,23 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                             Row(
                               children: [
                                 Text(
-                                  context.read<SettingsService>().formatAmount(product.prixUnitaire),
-                                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: AppTheme.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  context
+                                      .read<SettingsService>()
+                                      .formatAmount(product.prixUnitaire),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(
+                                        color: AppTheme.primaryColor,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                                 if (product.unite != null) ...[
                                   const SizedBox(width: 8),
                                   Text(
                                     '/ ${product.unite}',
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ],
                               ],
@@ -617,9 +663,12 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                             const SizedBox(height: 4),
                             Text(
                               'Ajouté le ${DateFormat('dd/MM/yyyy').format(product.dateCreation)}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                             ),
                           ],
                         ),
@@ -649,9 +698,12 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
                               value: 'delete',
                               child: Row(
                                 children: [
-                                  Icon(Icons.delete, size: 20, color: AppTheme.errorColor),
+                                  Icon(Icons.delete,
+                                      size: 20, color: AppTheme.errorColor),
                                   SizedBox(width: 8),
-                                  Text('Supprimer', style: TextStyle(color: AppTheme.errorColor)),
+                                  Text('Supprimer',
+                                      style: TextStyle(
+                                          color: AppTheme.errorColor)),
                                 ],
                               ),
                             ),
@@ -693,8 +745,8 @@ class _ManageClientsProductsScreenState extends State<ManageClientsProductsScree
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+                    color: AppTheme.textSecondary,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),

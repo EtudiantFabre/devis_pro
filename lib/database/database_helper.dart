@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import '../models/client.dart';
 import '../models/produit.dart';
 import '../models/devis.dart';
+import '../models/entreprise.dart';
 import '../models/item_devis.dart';
 
 class DatabaseHelper {
@@ -22,12 +23,28 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'devis_pro.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    // Table entreprises
+    await db.execute('''
+      CREATE TABLE entreprises (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nom TEXT NOT NULL,
+        email TEXT,
+        telephone TEXT,
+        adresse TEXT,
+        siret TEXT,
+        tva_intracom TEXT,
+        logo_path TEXT,
+        date_creation INTEGER NOT NULL
+      )
+    ''');
+
     // Table clients
     await db.execute('''
       CREATE TABLE clients (
@@ -57,12 +74,16 @@ class DatabaseHelper {
       CREATE TABLE devis (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         client_id INTEGER NOT NULL,
+        entreprise_id INTEGER,
         numero TEXT NOT NULL,
         date_creation INTEGER NOT NULL,
         date_echeance INTEGER NOT NULL,
         total REAL NOT NULL,
         statut TEXT NOT NULL DEFAULT 'brouillon',
         notes TEXT,
+        tva_applicable INTEGER NOT NULL DEFAULT 0,
+        tva_rate REAL,
+        template_type TEXT,
         FOREIGN KEY (client_id) REFERENCES clients (id)
       )
     ''');
@@ -83,6 +104,31 @@ class DatabaseHelper {
         FOREIGN KEY (produit_id) REFERENCES produits (id)
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Create entreprises table if not exists
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS entreprises (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nom TEXT NOT NULL,
+          email TEXT,
+          telephone TEXT,
+          adresse TEXT,
+          siret TEXT,
+          tva_intracom TEXT,
+          logo_path TEXT,
+          date_creation INTEGER NOT NULL
+        )
+      ''');
+
+      // Add new columns to devis
+      await db.execute("ALTER TABLE devis ADD COLUMN entreprise_id INTEGER");
+      await db.execute("ALTER TABLE devis ADD COLUMN tva_applicable INTEGER NOT NULL DEFAULT 0");
+      await db.execute("ALTER TABLE devis ADD COLUMN tva_rate REAL");
+      await db.execute("ALTER TABLE devis ADD COLUMN template_type TEXT");
+    }
   }
 
   // Méthodes pour les clients
@@ -215,6 +261,50 @@ class DatabaseHelper {
       devis.toMap(),
       where: 'id = ?',
       whereArgs: [devis.id],
+    );
+  }
+
+  // ======= Méthodes pour les entreprises =======
+  Future<int> insertEntreprise(Entreprise entreprise) async {
+    final db = await database;
+    return await db.insert('entreprises', entreprise.toMap());
+  }
+
+  Future<List<Entreprise>> getAllEntreprises() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('entreprises');
+    return List.generate(maps.length, (i) => Entreprise.fromMap(maps[i]));
+  }
+
+  Future<Entreprise?> getEntreprise(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'entreprises',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (maps.isNotEmpty) {
+      return Entreprise.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<int> updateEntreprise(Entreprise entreprise) async {
+    final db = await database;
+    return await db.update(
+      'entreprises',
+      entreprise.toMap(),
+      where: 'id = ?',
+      whereArgs: [entreprise.id],
+    );
+  }
+
+  Future<int> deleteEntreprise(int id) async {
+    final db = await database;
+    return await db.delete(
+      'entreprises',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 

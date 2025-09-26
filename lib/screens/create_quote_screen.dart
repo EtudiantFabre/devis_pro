@@ -11,7 +11,7 @@ import '../theme/app_theme.dart';
 
 class CreateQuoteScreen extends StatefulWidget {
   final String? initialText;
-  
+
   const CreateQuoteScreen({super.key, this.initialText});
 
   @override
@@ -32,6 +32,10 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
   List<ItemDevis> _items = [];
   bool _isLoading = false;
   String? _numeroDevis;
+  // TVA et modèle
+  bool _tvaApplicable = false;
+  double _tvaRate = 18.0; // en pourcentage
+  String _templateType = 'services';
 
   @override
   void initState() {
@@ -474,6 +478,9 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
         total: _calculateTotal(),
         statut: 'brouillon',
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        tvaApplicable: _tvaApplicable,
+        tvaRate: _tvaApplicable ? _tvaRate : null,
+        templateType: _templateType,
       );
 
       final devisId = await _dbHelper.insertDevis(devis);
@@ -546,6 +553,13 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
             children: [
               // Section client
               Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // coins plus arrondis
+                  side: BorderSide(
+                      color: Colors.black.withOpacity(0.1), width: 1.0),
+                ),
+                elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -657,6 +671,7 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
                       if (_items.isEmpty)
                         Container(
                           padding: const EdgeInsets.all(32),
+                          width: double.infinity,
                           decoration: BoxDecoration(
                             border: Border.all(
                                 color: Colors.grey[300]!,
@@ -754,6 +769,13 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
 
               // Section notes
               Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // coins plus arrondis
+                  side: BorderSide(
+                      color: Colors.black.withOpacity(0.1), width: 1.0),
+                ),
+                elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -778,6 +800,75 @@ class _CreateQuoteScreenState extends State<CreateQuoteScreen> {
               ),
 
               const SizedBox(height: 16),
+
+              // Section TVA & Modèle PDF
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // coins plus arrondis
+                  side: BorderSide(
+                      color: Colors.black.withOpacity(0.1), width: 1.0),
+                ),
+                elevation: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Paramètres du devis',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        value: _tvaApplicable,
+                        onChanged: (v) {
+                          setState(() {
+                            _tvaApplicable = v;
+                          });
+                        },
+                        title: const Text('TVA applicable'),
+                      ),
+                      if (_tvaApplicable) ...[
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          initialValue: _tvaRate.toString(),
+                          decoration: const InputDecoration(
+                            labelText: 'Taux de TVA (%)',
+                            hintText: 'ex: 20',
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (v) {
+                            final val = double.tryParse(v.replaceAll(',', '.'));
+                            if (val != null) {
+                              _tvaRate = val;
+                            }
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: _templateType,
+                        items: const [
+                          DropdownMenuItem(
+                              value: 'services',
+                              child: Text('Prestataire de services')),
+                          DropdownMenuItem(
+                              value: 'auto_entrepreneur',
+                              child: Text('Auto-entrepreneur')),
+                          DropdownMenuItem(
+                              value: 'batiment', child: Text('Bâtiment')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) setState(() => _templateType = v);
+                        },
+                        decoration:
+                            const InputDecoration(labelText: 'Modèle PDF'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
               // Section total
               Card(

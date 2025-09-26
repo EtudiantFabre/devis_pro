@@ -26,7 +26,10 @@ class SettingsService extends ChangeNotifier {
   String formatAmount(num value) {
     final symbol = _symbolFor(_currencyCode);
     final formatter = NumberFormat.currency(locale: 'fr_FR', symbol: symbol);
-    return formatter.format(value);
+    String out = formatter.format(value);
+    // Remove trailing ,00 or .00 if present (keep non-zero decimals)
+    out = out.replaceAll(RegExp(r'(,|\.)00(?=\s|$)'), '');
+    return out;
   }
 
   String _symbolFor(String code) {

@@ -33,7 +33,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final items = await _dbHelper.getItemsDevis(widget.quote.id!);
       setState(() {
@@ -85,18 +85,19 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
   Future<void> _generateAndSharePDF() async {
     try {
       final pdfService = PdfService();
-      // Choisir le modèle
       final style = await _chooseTemplateStyle();
       if (style == null) return;
       final pdfFile = await pdfService.generateQuotePDF(
         widget.quote,
         _items,
+        entreprise: null,
         style: style,
       );
       if (mounted) {
         await pdfService.sharePDF(pdfFile, '');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PDF généré, choisissez une option de partage')),
+          const SnackBar(
+              content: Text('PDF généré, choisissez une option de partage')),
         );
       }
     } catch (e) {
@@ -124,33 +125,35 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.description, color: AppTheme.primaryColor),
-              title: const Text('Classique'),
-              subtitle: const Text('Design traditionnel avec en-tête coloré'),
+              leading:
+                  const Icon(Icons.description, color: AppTheme.primaryColor),
+              title: const Text('Auto-Entrepreneur'),
+              subtitle: const Text('Sans TVA, mention 293B'),
               trailing: const Icon(Icons.visibility),
               onTap: () {
                 Navigator.pop(context);
-                _previewTemplate(PdfTemplateStyle.classique);
+                _previewTemplate(PdfTemplateStyle.autoEntrepreneur);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.filter_none, color: AppTheme.primaryColor),
-              title: const Text('Minimal'),
-              subtitle: const Text('Style épuré et moderne'),
+              leading:
+                  const Icon(Icons.filter_none, color: AppTheme.primaryColor),
+              title: const Text('Prestataire de services'),
+              subtitle: const Text('Client à gauche, infos devis à droite'),
               trailing: const Icon(Icons.visibility),
               onTap: () {
                 Navigator.pop(context);
-                _previewTemplate(PdfTemplateStyle.minimal);
+                _previewTemplate(PdfTemplateStyle.services);
               },
             ),
             ListTile(
               leading: const Icon(Icons.layers, color: AppTheme.primaryColor),
-              title: const Text('Moderne'),
-              subtitle: const Text('Design contemporain avec bordures'),
+              title: const Text('Bâtiment'),
+              subtitle: const Text('Bloc encadré, totaux avec TVA'),
               trailing: const Icon(Icons.visibility),
               onTap: () {
                 Navigator.pop(context);
-                _previewTemplate(PdfTemplateStyle.moderne);
+                _previewTemplate(PdfTemplateStyle.batiment);
               },
             ),
             const SizedBox(height: 16),
@@ -188,7 +191,8 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
       if (mounted) {
         await pdfService.sharePDF(pdfFile, '');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PDF généré, choisissez une option de partage')),
+          const SnackBar(
+              content: Text('PDF généré, choisissez une option de partage')),
         );
       }
     } catch (e) {
@@ -198,35 +202,6 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
         );
       }
     }
-  }
-
-  Future<String?> _showEmailDialog() async {
-    final emailController = TextEditingController();
-    
-    return showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Email du destinataire'),
-        content: TextField(
-          controller: emailController,
-          decoration: const InputDecoration(
-            labelText: 'Adresse email',
-            hintText: 'client@example.com',
-          ),
-          keyboardType: TextInputType.emailAddress,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, emailController.text),
-            child: const Text('Envoyer'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -254,9 +229,10 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(16), // coins plus arrondis
+                      side: BorderSide(
+                          color: Colors.black.withOpacity(0.1), width: 1.0),
                     ),
-                    elevation: 6,
-                    shadowColor: Colors.black.withOpacity(0.3),
+                    elevation: 5,
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -270,9 +246,11 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: _getStatusColor(widget.quote.statut).withOpacity(0.1),
+                                  color: _getStatusColor(widget.quote.statut)
+                                      .withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
@@ -287,13 +265,27 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                           ),
                           const SizedBox(height: 16),
                           _buildInfoRow('Numéro', widget.quote.numero),
-                          _buildInfoRow('Client', widget.quote.client?.nom ?? 'N/A'),
-                          _buildInfoRow('Email', widget.quote.client?.email ?? 'N/A'),
-                          _buildInfoRow('Téléphone', widget.quote.client?.telephone ?? 'N/A'),
-                          _buildInfoRow('Date de création', DateFormat('dd/MM/yyyy').format(widget.quote.dateCreation)),
-                          _buildInfoRow('Date d\'échéance', DateFormat('dd/MM/yyyy').format(widget.quote.dateEcheance)),
-                          _buildInfoRow('Total', context.read<SettingsService>().formatAmount(widget.quote.total)),
-                          if (widget.quote.notes != null && widget.quote.notes!.isNotEmpty) ...[
+                          _buildInfoRow(
+                              'Client', widget.quote.client?.nom ?? 'N/A'),
+                          _buildInfoRow(
+                              'Email', widget.quote.client?.email ?? 'N/A'),
+                          _buildInfoRow('Téléphone',
+                              widget.quote.client?.telephone ?? 'N/A'),
+                          _buildInfoRow(
+                              'Date de création',
+                              DateFormat('dd/MM/yyyy')
+                                  .format(widget.quote.dateCreation)),
+                          _buildInfoRow(
+                              'Date d\'échéance',
+                              DateFormat('dd/MM/yyyy')
+                                  .format(widget.quote.dateEcheance)),
+                          _buildInfoRow(
+                              'Total',
+                              context
+                                  .read<SettingsService>()
+                                  .formatAmount(widget.quote.total)),
+                          if (widget.quote.notes != null &&
+                              widget.quote.notes!.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
                               'Notes:',
@@ -309,18 +301,25 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Articles du devis
                   Text(
                     'Articles',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 12),
-                  
+
                   if (_items.isEmpty)
                     Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16), // coins plus arrondis
+                        side: BorderSide(
+                            color: Colors.black.withOpacity(0.1), width: 1.0),
+                      ),
+                      elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(32),
                         child: Column(
@@ -338,9 +337,12 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                             const SizedBox(height: 8),
                             Text(
                               'Ce devis ne contient aucun article',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -355,6 +357,14 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                       itemBuilder: (context, index) {
                         final item = _items[index];
                         return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                16), // coins plus arrondis
+                            side: BorderSide(
+                                color: Colors.black.withOpacity(0.1),
+                                width: 1.0),
+                          ),
+                          elevation: 5,
                           margin: const EdgeInsets.only(bottom: 8),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
@@ -362,20 +372,28 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
                                         item.nom,
-                                        style: Theme.of(context).textTheme.titleMedium,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
                                       ),
                                     ),
                                     Text(
-                                      context.read<SettingsService>().formatAmount(item.total),
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppTheme.primaryColor,
-                                      ),
+                                      context
+                                          .read<SettingsService>()
+                                          .formatAmount(item.total),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.primaryColor,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -383,9 +401,12 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     item.description,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: AppTheme.textSecondary,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: AppTheme.textSecondary,
+                                        ),
                                   ),
                                 ],
                                 const SizedBox(height: 8),
@@ -393,18 +414,22 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                                   children: [
                                     Text(
                                       'Quantité: ${item.quantite}',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                     const SizedBox(width: 16),
                                     Text(
                                       'Prix unitaire: ${context.read<SettingsService>().formatAmount(item.prixUnitaire)}',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (item.unite != null) ...[
                                       const SizedBox(width: 16),
                                       Text(
                                         'Unité: ${item.unite}',
-                                        style: Theme.of(context).textTheme.bodySmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
                                       ),
                                     ],
                                   ],
@@ -437,9 +462,9 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
             child: Text(
               '$label:',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: AppTheme.textSecondary,
-              ),
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textSecondary,
+                  ),
             ),
           ),
           Expanded(

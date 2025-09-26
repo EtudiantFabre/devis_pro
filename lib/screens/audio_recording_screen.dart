@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:just_audio/just_audio.dart';
+// import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_kit.dart';  // Temporairement désactivé
 import '../services/audio_recording_service.dart';
 import '../theme/app_theme.dart';
 import 'create_quote_screen.dart';
@@ -16,13 +18,15 @@ class AudioRecordingScreen extends StatefulWidget {
 
 class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
   final AudioRecordingService _audioService = AudioRecordingService();
-  
+  final AudioPlayer _player = AudioPlayer();
+
   bool _isRecording = false;
   bool _isLoading = false;
-  String? _currentRecordingPath;
   Duration _recordingDuration = Duration.zero;
   List<AudioFile> _recordings = [];
-  
+  String? _currentPlayingPath;
+  bool _isPlaying = false;
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +36,7 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
   @override
   void dispose() {
     _audioService.dispose();
+    _player.dispose();
     super.dispose();
   }
 
@@ -61,7 +66,7 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
   Future<List<AudioFile>> _getStoredRecordings() async {
     final Directory appDir = await getApplicationDocumentsDirectory();
     final Directory audioDir = Directory('${appDir.path}/recordings');
-    
+
     if (!await audioDir.exists()) {
       await audioDir.create(recursive: true);
       return [];
@@ -88,13 +93,12 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
 
   Future<void> _startRecording() async {
     try {
-      final path = await _audioService.startRecording();
+      await _audioService.startRecording();
       setState(() {
         _isRecording = true;
-        _currentRecordingPath = path;
         _recordingDuration = Duration.zero;
       });
-      
+
       _startTimer();
     } catch (e) {
       if (mounted) {
@@ -112,7 +116,6 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
         await _saveRecording(file);
         setState(() {
           _isRecording = false;
-          _currentRecordingPath = null;
           _recordingDuration = Duration.zero;
         });
         _loadRecordings();
@@ -129,23 +132,68 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
   Future<void> _saveRecording(File file) async {
     final Directory appDir = await getApplicationDocumentsDirectory();
     final Directory audioDir = Directory('${appDir.path}/recordings');
-    
+
     if (!await audioDir.exists()) {
       await audioDir.create(recursive: true);
     }
 
-    final String fileName = 'recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final String fileName =
+        'recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
     final String newPath = '${audioDir.path}/$fileName';
-    
+
     await file.copy(newPath);
     await file.delete(); // Supprimer le fichier temporaire
+  }
+
+  Future<void> _togglePlay(AudioFile recording) async {
+    try {
+      if (_currentPlayingPath != recording.path) {
+        await _player.setFilePath(recording.path);
+        _currentPlayingPath = recording.path;
+        await _player.play();
+        setState(() {
+          _isPlaying = true;
+        });
+        _player.playerStateStream.listen((state) {
+          if (!mounted) return;
+          final playing = state.playing;
+          final completed = state.processingState == ProcessingState.completed;
+          setState(() {
+            _isPlaying = playing && !completed;
+            if (completed) {
+              _player.seek(Duration.zero);
+              _currentPlayingPath = null;
+            }
+          });
+        });
+      } else {
+        if (_isPlaying) {
+          await _player.pause();
+          setState(() {
+            _isPlaying = false;
+          });
+        } else {
+          await _player.play();
+          setState(() {
+            _isPlaying = true;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur de lecture: $e')),
+        );
+      }
+    }
   }
 
   void _startTimer() {
     Future.delayed(const Duration(seconds: 1), () {
       if (_isRecording && mounted) {
         setState(() {
-          _recordingDuration = Duration(seconds: _recordingDuration.inSeconds + 1);
+          _recordingDuration =
+              Duration(seconds: _recordingDuration.inSeconds + 1);
         });
         _startTimer();
       }
@@ -187,7 +235,8 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer l\'enregistrement'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer cet enregistrement ?'),
+        content: const Text(
+            'Êtes-vous sûr de vouloir supprimer cet enregistrement ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -241,7 +290,7 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
     if (mounted) {
       // Afficher le texte transcrit (simulé)
       final transcribedText = await _showTranscriptionDialog(recording);
-      
+
       if (transcribedText != null && transcribedText.isNotEmpty) {
         // Naviguer vers la création de devis avec le texte
         Navigator.push(
@@ -358,10 +407,14 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
                     height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _isRecording ? AppTheme.errorColor : AppTheme.primaryColor,
+                      color: _isRecording
+                          ? AppTheme.errorColor
+                          : AppTheme.primaryColor,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isRecording ? AppTheme.errorColor : AppTheme.primaryColor)
+                          color: (_isRecording
+                                  ? AppTheme.errorColor
+                                  : AppTheme.primaryColor)
                               .withOpacity(0.3),
                           blurRadius: 20,
                           spreadRadius: 5,
@@ -375,25 +428,27 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Statut et durée
                 Text(
-                  _isRecording ? 'Enregistrement en cours...' : 'Appuyez pour enregistrer',
+                  _isRecording
+                      ? 'Enregistrement en cours...'
+                      : 'Appuyez pour enregistrer',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
-                
+
                 if (_isRecording) ...[
                   const SizedBox(height: 8),
                   Text(
                     _formatDuration(_recordingDuration),
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.errorColor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: AppTheme.errorColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ],
               ],
@@ -441,8 +496,8 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
             Text(
               'Commencez par enregistrer votre première discussion',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondary,
-              ),
+                    color: AppTheme.textSecondary,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -488,16 +543,18 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
                     children: [
                       Text(
                         recording.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        DateFormat('dd/MM/yyyy à HH:mm').format(recording.dateCreated),
+                        DateFormat('dd/MM/yyyy à HH:mm')
+                            .format(recording.dateCreated),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
+                              color: AppTheme.textSecondary,
+                            ),
                       ),
                     ],
                   ),
@@ -505,27 +562,26 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
                 Text(
                   _formatFileSize(recording.size),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                        color: AppTheme.textSecondary,
+                      ),
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Actions
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      // TODO: Implémenter la lecture audio
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Lecture audio à implémenter')),
-                      );
-                    },
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Écouter'),
+                    onPressed: () => _togglePlay(recording),
+                    icon: Icon(
+                      (_currentPlayingPath == recording.path && _isPlaying)
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                    ),
+                    label: const Text(''),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -533,7 +589,7 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => _shareRecording(recording),
                     icon: const Icon(Icons.share),
-                    label: const Text('Partager'),
+                    label: const Text(''),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -541,9 +597,9 @@ class _AudioRecordingScreenState extends State<AudioRecordingScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () => _processWithAI(recording),
                     icon: const Icon(Icons.psychology),
-                    label: const Text('IA'),
+                    label: const Text(''),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.successColor,
+                      backgroundColor: AppTheme.primaryColor,
                     ),
                   ),
                 ),
